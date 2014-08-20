@@ -37,7 +37,7 @@ banned_end_words = ['the', 'a', 'an', 'at', 'been', 'in', 'of', 'to', 'by', 'my'
                     'with', 'it', 'is', 'will', 'in', 'its', 'of', 'we', 'was', 'were', 'have',
                     'you', 'do', 'had', 'whose', 'while', 'because']
 
-banned_word_combos = [['the', 'and', 'the'], ['at', 'to'], ['around', 'about'], ['the', 'all', 'the'], ['the', 'of', 'the']]
+banned_word_combos = [['the', 'and', 'the'], ['at', 'to'], ['around', 'about'], ['the', 'all', 'the'], ['the', 'of', 'the'], ['on', 'the', 'of']]
 
 if show_diagnostics.lower() == 'y':
     print "importing source text..."
