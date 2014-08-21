@@ -43,7 +43,9 @@ banned_end_words = ['the', 'a', 'an', 'at', 'been', 'in', 'of', 'to', 'by', 'my'
                     'with', 'it', 'is', 'will', 'in', 'its', 'of', 'we', 'was', 'were', 'have',
                     'you', 'do', 'had', 'whose', 'while', 'because']
 
-banned_word_combos = [['the', 'and', 'the'], ['at', 'to'], ['around', 'about'], ['the', 'all', 'the'], ['the', 'of', 'the'], ['on', 'the', 'of']]
+banned_word_combos = [['the', 'and', 'the'], ['at', 'to'], ['around', 'about'], ['the', 'all', 'the'], ['the', 'of', 'the'], ['on', 'the', 'of'],
+					  ['the', 'of'], ['on', 'of'], ['the', 'in'], ['of', 'in'], ['of', 'by'], ['the', 'all'], ['the', 'with', 'a'], ['the', 'with'],
+					  ['the', 'a']
 
 if show_diagnostics.lower() == 'y':
     print "importing source text..."
@@ -719,6 +721,25 @@ def line_length_counter(b, word_list):
         lls.append(b[i] - b[i-1])
     lls.append(len(word_list) - b[-1])
     return lls
+
+
+def natural_line_adjust(sonnet):
+	s = []
+	max_length = int(syls_per_line) / 2
+	for i in range(len(sonnet)):
+		if len(sonnet[i]) <= max_length:
+			s.append(sonnet[i])
+		else:
+			ll = len(sonnet[i])
+			count = ll / max_length
+			sub_length = ll / count
+			breaks = []
+			for j in range(count):
+				breaks.append(j * sub_length)
+			breaks.append(ll+1)
+			for k in range(len(breaks)-1):
+				s.append(sonnet[i][breaks[k]:breaks[k+1]])
+	return s
     
 
 def natural_breaks(sonnet):
@@ -820,6 +841,8 @@ def natural_breaks(sonnet):
     else:
         pass
 
+    s = natural_line_adjust(s)
+
     return s
 
 
@@ -834,11 +857,10 @@ def plagiarized(sonnet):
 
 
 def banned_word_combo_fixer(l):
-    l = ' '.join(l)
     for combo in banned_word_combos:
         if ' '.join(combo) in l:
             l = l.split(' ')
-            for i in range(len(l) - len(combo)):
+            for i in range(len(l) - len(combo) + 1):
                 if l[i:i+len(combo)] == combo:
                     l[i:i+len(combo)] = [random.choice(combo)]
                     l = ' '.join(l)
@@ -847,6 +869,7 @@ def banned_word_combo_fixer(l):
                     pass
         else:
             pass
+
     return l
 
 
@@ -887,7 +910,7 @@ def sonnetizer():
             s[-1] = s[-1][:-1]
     sonnet = []
     for i in range(len(s)):
-        line = s[i]
+        line = ' '.join(s[i])
         line = banned_word_combo_fixer(line)
         line = line + latex_lb
         sonnet.append(line)
