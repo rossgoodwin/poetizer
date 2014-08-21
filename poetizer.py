@@ -9,17 +9,23 @@ from nltk.corpus import wordnet as wn
 from nltk.stem.snowball import SnowballStemmer
 from nltk.probability import LidstoneProbDist
 
-if len(argv) == 6:
-    script, book, rhyme_scheme, poem_count, output_format, show_diagnostics = argv
-elif len(argv) == 5:
-    script, book, rhyme_scheme, poem_count, output_format = argv
+if len(argv) == 7:
+    script, book, rhyme_scheme, poem_count, syls_per_line, output_format, show_diagnostics = argv
+elif len(argv) == 6:
+    script, book, rhyme_scheme, poem_count, syls_per_line, output_format = argv
     show_diagnostics = 'y'
+elif len(argv) == 5:
+	script, book, rhyme_scheme, poem_count, syls_per_line = argv
+	output_format = 'pt'
+	show_diagnostics = 'y'
 elif len(argv) == 4:
     script, book, rhyme_scheme, poem_count = argv
+    syls_per_line = '10'
     output_format = 'pt'
     show_diagnostics = 'y'
 elif len(argv) == 3:
     script, book, rhyme_scheme = argv
+    syls_per_line = '10'
     poem_count = '10'
     output_format = 'pt'
     show_diagnostics = 'y'
@@ -423,7 +429,7 @@ def generate_line(prior_words):
     line += [prior_words[-1], word_y]
     sc += sylcount(word_y)
     # maybe tweak this number...
-    while sc < 10:
+    while sc < int(syls_per_line):
         word_z = content_model.generate(1, line[-2:])
         word_z = word_z[-1]
         line.append(word_z)
