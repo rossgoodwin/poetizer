@@ -1,3 +1,4 @@
+# POEM WRITER IMPORTS
 from sys import argv
 import random
 import re
@@ -9,34 +10,41 @@ from nltk.corpus import wordnet as wn
 from nltk.stem.snowball import SnowballStemmer
 from nltk.probability import LidstoneProbDist
 
-# THIS IS A SKETCHY HACK NEEDS TO BE FIXED BLAH BLAH BLAH...
-if __name__ == '__main__':
-# ...END OF SKETCHY HACK -- TO REVERSE, DELETE LINE ABOUVE
-# AND UNINDENT LINES BELOW
-    if len(argv) == 7:
-        script, book, rhyme_scheme, poem_count, syls_per_line, output_format, show_diagnostics = argv
-    elif len(argv) == 6:
-        script, book, rhyme_scheme, poem_count, syls_per_line, output_format = argv
-        show_diagnostics = 'y'
-    elif len(argv) == 5:
-    	script, book, rhyme_scheme, poem_count, syls_per_line = argv
-    	output_format = 'pt'
-    	show_diagnostics = 'y'
-    elif len(argv) == 4:
-        script, book, rhyme_scheme, poem_count = argv
-        syls_per_line = '10'
-        output_format = 'pt'
-        show_diagnostics = 'y'
-    elif len(argv) == 3:
-        script, book, rhyme_scheme = argv
-        syls_per_line = '10'
-        poem_count = '10'
-        output_format = 'pt'
-        show_diagnostics = 'y'
-    else:
-        print "invalid input arguments"
-# ALSO SKETCHY...
+# POEM READER IMPORTS
+from PIL import Image
+from time import sleep
+import pyttsx
+import flickrapi
+import shutil
+import requests
+
+
+# POEM READER STARTS HERE...
+
+if len(argv) == 7:
+    script, book, rhyme_scheme, poem_count, syls_per_line, output_format, show_diagnostics = argv
+elif len(argv) == 6:
+    script, book, rhyme_scheme, poem_count, syls_per_line, output_format = argv
+    show_diagnostics = 'y'
+elif len(argv) == 5:
+	script, book, rhyme_scheme, poem_count, syls_per_line = argv
+	output_format = 'pt'
+	show_diagnostics = 'y'
+elif len(argv) == 4:
+    script, book, rhyme_scheme, poem_count = argv
+    syls_per_line = '10'
+    output_format = 'pt'
+    show_diagnostics = 'y'
+elif len(argv) == 3:
+    script, book, rhyme_scheme = argv
+    syls_per_line = '10'
+    poem_count = '10'
+    output_format = 'pt'
+    show_diagnostics = 'y'
 else:
+    print "invalid input arguments"
+# ALSO SKETCHY...
+while False:
     book = 'special_blend.txt'
     # this should be tweaked
     rhyme_scheme = 'ABCDEFG'
@@ -928,23 +936,100 @@ def sonnetizer():
         line = banned_word_combo_fixer(line)
         line = line + latex_lb
         sonnet.append(line)
-    return [' '.join(title).upper(), '\n'.join(sonnet) + '\n' + latex_lb + '\n' + latex_lb]
+    return ' '.join(title).upper() + '\n'.join(sonnet) + '\n' + latex_lb + '\n' + latex_lb
 
 if show_diagnostics.lower() == 'y':
     print "assembling sonnets...\n\n"
-for i in range(0,int(poem_count),2):
-    sonnet1 = sonnetizer()
-    sonnet2 = sonnetizer()
-    if output_format == "latex":
-        print '\\noindent'
+#for i in range(0,int(poem_count),2):
+#    sonnet1 = sonnetizer()
+#    sonnet2 = sonnetizer()
+#    if output_format == "latex":
+#        print '\\noindent'
+#    else:
+#        pass
+#    print str(i + 1) + '. ' + sonnet1[0] + latex_lb
+#    print sonnet1[1]
+#    print str(i + 2) + '. ' + sonnet2[0] + latex_lb
+#    print sonnet2[1]
+#    if output_format == "latex":
+#        print '\\newpage'
+#    else:
+#        pass
+
+# POEM READER ENDS HERE
+
+# NO MAN'S LAND
+# TO BE FILLED WITH AWESOME CODE
+# OR USELESS MIDDLE LAYERS
+# OF NOTHINGNESS
+# THE BIG EMPTY
+
+# AND SUDDENLY
+# A BURST OF LIGHT...
+
+poem = sonnetizer()
+print poem
+
+# POEM READER STARTS HERE!
+
+api_key = '731536fd7d7a2cef10fc403b9e9dbf32'
+flickr = flickrapi.FlickrAPI(api_key)
+
+trash = poem
+waste = nltk.word_tokenize(trash)
+possum = nltk.pos_tag(waste)
+
+
+def download_photo(word):
+    photo_url = None
+    for photo in flickr.walk(tag=word, text=word, sort='relevance', extras='url_z'):
+        photo_url = photo.get('url_z')
+        if photo_url == None:
+            pass
+        else:
+            break
+    if photo_url != None:
+        print "adding photo for %s..." % word
+        response = requests.get(photo_url, stream=True)
+        with open(word + '.jpg', 'wb') as out_file:
+            shutil.copyfileobj(response.raw, out_file)
+        del response
+    else:
+        photo_words.remove(word)
+
+
+photo_words = []
+for (i, j) in possum:
+    if j in ['NN', 'NNS', 'NNP', 'NNPS', 'VB', 
+             'VBD', 'VBG', 'VBN', 'VBP', 'VBZ',
+             'JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS']:
+        photo_words.append(i)
+        download_photo(i)
     else:
         pass
-    print str(i + 1) + '. ' + sonnet1[0] + latex_lb
-    print sonnet1[1]
-    print str(i + 2) + '. ' + sonnet2[0] + latex_lb
-    print sonnet2[1]
-    if output_format == "latex":
-        print '\\newpage'
+
+
+def onWord(name, location, length):
+    word = trash[location:location+length]
+    if word in photo_words:
+        im = Image.open(word + '.jpg')
+        im.show()
     else:
         pass
+
+
+engine = pyttsx.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-100)
+engine.connect('started-word', onWord)
+engine.runAndWait()
+engine.say(poem)
+engine.runAndWait()
+
+# POEM WRITER ENDS HERE :(
+# THIS IS THE END OF THE PROGRAM
+# ...FOR NOW!
+
+
+
 
