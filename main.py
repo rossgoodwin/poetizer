@@ -1026,7 +1026,7 @@ engine.runAndWait()
 engine.say(poem)
 engine.runAndWait()
 
-# POEM WRITER ENDS HERE :(
+# POEM READER ENDS HERE :(
 # THIS IS THE END OF THE PROGRAM
 # ...FOR NOW!
 
